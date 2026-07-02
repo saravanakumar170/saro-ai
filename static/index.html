@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Saro AI</title>
+<script>
+  (function () {
+    var t = localStorage.getItem("saro_theme") || "light";
+    document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
+<link rel="stylesheet" href="/static/style.css" />
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+</head>
+<body>
+  <!-- Reusable logo, referenced via <use> everywhere it appears -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <linearGradient id="sparkGradient" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#15803d" />
+        <stop offset="1" stop-color="#22c55e" />
+      </linearGradient>
+      <symbol id="saro-spark" viewBox="0 0 24 24">
+        <path d="M12 2C12.5 7 13 10.5 22 12C13 13.5 12.5 17 12 22C11.5 17 11 13.5 2 12C11 10.5 11.5 7 12 2Z" />
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-logo"><svg viewBox="0 0 24 24"><use href="#saro-spark" /></svg></span>
+        <h1>Saro AI</h1>
+      </div>
+      <button class="icon-btn" id="settingsBtn" title="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+      </button>
+    </header>
+
+    <main class="chat" id="chat">
+      <div class="msg assistant">
+        <div class="avatar"><svg viewBox="0 0 24 24"><use href="#saro-spark" /></svg></div>
+        <div class="bubble content">Hi, I'm <strong>Saro AI</strong>. What can I help you with?</div>
+      </div>
+    </main>
+
+    <footer class="composer">
+      <div class="attachments-preview" id="attachmentsPreview"></div>
+      <form id="chatForm" class="input-row">
+        <button type="button" class="icon-btn attach-btn" id="attachBtn" title="Attach photo or file">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+          </svg>
+        </button>
+        <input type="file" id="fileInput" accept="image/*,.txt,.md,.csv,.json,.log,.js,.py,.html,.css,.yaml,.yml,.xml" multiple hidden />
+        <textarea
+          id="input"
+          placeholder="Message Saro AI..."
+          rows="1"
+          autofocus
+        ></textarea>
+        <button type="submit" id="sendBtn" title="Send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 19V5M5 12l7-7 7 7" />
+          </svg>
+        </button>
+      </form>
+      <div class="disclaimer">Saro AI can make mistakes. Please double-check important information.</div>
+    </footer>
+  </div>
+
+  <div class="modal-backdrop" id="settingsBackdrop">
+    <div class="modal">
+      <h2>Settings</h2>
+
+      <div class="settings-scroll">
+        <div class="settings-section">
+          <label class="field-label">Theme</label>
+          <div class="segmented" id="themeToggle">
+            <button type="button" class="segmented-btn" data-theme="light" id="themeLight">Light</button>
+            <button type="button" class="segmented-btn" data-theme="dark" id="themeDark">Dark</button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <label class="field-label">Assistant's name</label>
+          <input type="text" id="aiNameInput" placeholder="Saro AI" autocomplete="off" />
+          <p class="hint">What you call your assistant while chatting — say its name and it'll respond to it.</p>
+        </div>
+
+        <div class="settings-section">
+          <label class="field-label">API providers</label>
+          <p class="hint" style="margin-top:0">
+            Saro AI already works out of the box. Turn one of these on only if you want to use
+            your own API key with a specific provider instead of the built-in default.
+          </p>
+
+          <div class="provider-card" data-provider="openai">
+            <div class="provider-head">
+              <span class="provider-name">OpenAI</span>
+              <label class="switch">
+                <input type="checkbox" class="provider-toggle" data-provider="openai" />
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+              </label>
+            </div>
+            <input type="password" class="provider-key" data-provider="openai" placeholder="OpenAI API key (sk-...)" autocomplete="off" />
+            <input type="text" class="provider-model" data-provider="openai" placeholder="Model (optional, default: gpt-4o-mini)" autocomplete="off" />
+          </div>
+
+          <div class="provider-card" data-provider="claude">
+            <div class="provider-head">
+              <span class="provider-name">Claude (Anthropic)</span>
+              <label class="switch">
+                <input type="checkbox" class="provider-toggle" data-provider="claude" />
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+              </label>
+            </div>
+            <input type="password" class="provider-key" data-provider="claude" placeholder="Anthropic API key (sk-ant-...)" autocomplete="off" />
+            <input type="text" class="provider-model" data-provider="claude" placeholder="Model (optional, default: claude-opus-4-8)" autocomplete="off" />
+          </div>
+
+          <div class="provider-card" data-provider="deepseek">
+            <div class="provider-head">
+              <span class="provider-name">DeepSeek</span>
+              <label class="switch">
+                <input type="checkbox" class="provider-toggle" data-provider="deepseek" />
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+              </label>
+            </div>
+            <input type="password" class="provider-key" data-provider="deepseek" placeholder="DeepSeek API key" autocomplete="off" />
+            <input type="text" class="provider-model" data-provider="deepseek" placeholder="Model (optional, default: deepseek-chat)" autocomplete="off" />
+          </div>
+
+          <div class="provider-card" data-provider="custom">
+            <div class="provider-head">
+              <span class="provider-name">Custom provider</span>
+              <label class="switch">
+                <input type="checkbox" class="provider-toggle" data-provider="custom" />
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+              </label>
+            </div>
+            <input type="password" class="provider-key" data-provider="custom" placeholder="API key" autocomplete="off" />
+            <input type="text" class="provider-baseurl" placeholder="Chat completions endpoint URL (e.g. https://api.example.com/v1/chat/completions)" autocomplete="off" />
+            <input type="text" class="provider-model" data-provider="custom" placeholder="Model name (required)" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="saveSettingsBtn" class="primary-btn">Save</button>
+        <button id="closeSettingsBtn" class="secondary-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
