@@ -59,8 +59,11 @@ def build_system_prompt(ai_name: Optional[str]) -> str:
     )
 
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+
 app = FastAPI(title="Saro AI")
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
 class ContentPart(BaseModel):
@@ -85,7 +88,7 @@ class ChatRequest(BaseModel):
 
 @app.get("/")
 def index():
-    return FileResponse("static/index.html")
+    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
 
 
 @app.get("/api/health")

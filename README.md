@@ -7,6 +7,8 @@
 Runs a small local model via [Ollama](https://ollama.com) when it can, and transparently
 falls back to a cloud model when it can't. No setup required for end users — open it and chat.
 
+**Live demo:** [saro-ai.vercel.app](https://saro-ai.vercel.app)
+
 ![Light theme](docs/screenshot-light.png)
 
 </div>
@@ -68,6 +70,25 @@ response.
    Open **http://127.0.0.1:8000** — it works immediately with the built-in cloud key.
 
 That's it. Everything below is optional.
+
+## Deploying to Vercel
+
+This repo is pre-configured for Vercel (`vercel.json` + `api/index.py` expose the FastAPI
+app as a Python serverless function).
+
+```bash
+npm i -g vercel
+vercel link          # create/link a project
+vercel env add OPENROUTER_API_KEY production
+vercel env add OPENROUTER_MODEL production
+vercel --prod
+```
+
+**Important:** Vercel is a cloud platform — there is no "local machine" for a deployed
+function to reach, so **Local (Ollama) mode never activates there**. The health check
+simply fails fast and every request automatically uses the cloud provider instead; this
+is expected, not a bug. Local/offline mode is only meaningful when you run `python app.py`
+yourself, on your own machine.
 
 ## Optional: run fully offline (local model)
 
